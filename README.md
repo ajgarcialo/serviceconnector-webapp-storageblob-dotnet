@@ -1,5 +1,4 @@
 ---
-67
 page_type: sample
 languages:
   - csharp
