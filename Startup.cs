@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace WebStorageSample
 {
@@ -24,6 +25,8 @@ namespace WebStorageSample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +43,12 @@ namespace WebStorageSample
                 app.UseHsts();
             }
 
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -49,7 +58,29 @@ namespace WebStorageSample
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
+                    endpoints.MapRazorPages();
+
+            endpoints.MapGet("/health", () =>
+                Results.Ok(new
+                {
+                    status = "Healthy Endpoint - AJGL",
+                    timestamp = DateTime.UtcNow
+                }))
+                .WithName("GetHealth")
+                .WithTags("Health")
+                .WithSummary("Verifica que la aplicación - AJGL");
+
+            endpoints.MapGet("/api/info", () =>
+                Results.Ok(new
+                {
+                    application = "WebStorageSample - MIA - AJGL",
+                    description = "Aplicación de ejemplo para Azure Blob Storage",
+                    version = "1.0.0"
+                }))
+                .WithName("GetApplicationInfo")
+                .WithTags("Application")
+                .WithSummary("Obtiene información general de la aplicación");
+
             });            
         }
     }
